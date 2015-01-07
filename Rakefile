@@ -5,8 +5,6 @@ Bundler.setup
 require 'rake'
 require 'rake/testtask'
 
-require 'appraisal'
-
 desc 'Default: run all tests.'
 task :default => :test
 
@@ -38,4 +36,4 @@ namespace :appraisal do
   end
 end
 
-load File.dirname(__FILE__) + '/lib/tasks/state_machine.rake'
+# load File.dirname(__FILE__) + '/lib/tasks/state_machine.rake'

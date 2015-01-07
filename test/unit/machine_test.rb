@@ -85,18 +85,6 @@ class MachineByDefaultTest < Test::Unit::TestCase
     assert !(class << @machine; ancestors; end).include?(StateMachine::Integrations::ActiveRecord)
   end
   
-  def test_should_not_be_extended_by_the_datamapper_integration
-    assert !(class << @machine; ancestors; end).include?(StateMachine::Integrations::DataMapper)
-  end
-  
-  def test_should_not_be_extended_by_the_mongo_mapper_integration
-    assert !(class << @machine; ancestors; end).include?(StateMachine::Integrations::MongoMapper)
-  end
-  
-  def test_should_not_be_extended_by_the_sequel_integration
-    assert !(class << @machine; ancestors; end).include?(StateMachine::Integrations::Sequel)
-  end
-  
   def test_should_define_a_reader_attribute_for_the_attribute
     assert @object.respond_to?(:state)
   end

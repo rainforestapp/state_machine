@@ -700,12 +700,7 @@ module StateMachine
       state = initial_state(object)
       if state && (options[:force] || initialize_state?(object))
         value = state.value
-        
-        if hash = options[:to]
-          hash[attribute.to_s] = value
-        else
-          write(object, :state, value)
-        end
+        object.send "#{attribute}=", value
       end
     end
     
@@ -1983,8 +1978,8 @@ module StateMachine
         define_action_helpers if define_action_helpers?
         define_name_helpers
       end
-      
-      # Defines the initial values for state machine attributes.  Static values
+
+      # Defines the initial values for state machine attributes. Static values
       # are set prior to the original initialize method and dynamic values are
       # set *after* the initialize method in case it is dependent on it.
       def define_state_initializer
