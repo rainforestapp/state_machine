@@ -1,6 +1,6 @@
 # spree-state_machine [![Build Status](https://secure.travis-ci.org/spree-contrib/state_machine.png "Build Status")](http://travis-ci.org/spree-contrib/state_machine)
 
-**NOTE: This is the Spree fork of state_machine that includes some fixes required for Rails 4.2. We hope to go back to a canonical release if https://github.com/pluginaweek/state_machine/issues/310 decides on a canonical fork. **
+**NOTE: This is the Spree fork of state_machine that includes some fixes required for Rails 4.2. We hope to go back to a canonical release if https://github.com/pluginaweek/state_machine/issues/310 decides on a canonical fork.**
 
 *state_machine* adds support for creating state machines for attributes on any
 Ruby class.
