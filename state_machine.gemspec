@@ -2,7 +2,7 @@ $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 require 'state_machine/version'
 
 Gem::Specification.new do |s|
-  s.name              = "state_machine"
+  s.name              = "spree-state_machine"
   s.version           = StateMachine::VERSION
   s.authors           = ["Aaron Pfeifer"]
   s.email             = "aaron@pluginaweek.org"
@@ -15,7 +15,8 @@ Gem::Specification.new do |s|
   s.test_files        = s.files.grep(/^test\//)
   s.rdoc_options      = %w(--line-numbers --inline-source --title state_machine --main README.md)
   s.extra_rdoc_files  = %w(README.md CHANGELOG.md LICENSE)
-  
+
   s.add_development_dependency("rake")
   s.add_development_dependency("simplecov")
+  s.add_development_dependency("test-unit")
 end
