@@ -1085,18 +1085,6 @@ started, following the steps below.
 
 #### 1. Install the gem
 
-If using Rails 2.x:
-
-```ruby
-# In config/environment.rb
-...
-Rails::Initializer.run do |config|
-  ...
-  config.gem 'state_machine', :version => '~> 1.0'
-  ...
-end
-```
-
 If using Rails 3.x or up:
 
 ```ruby
@@ -1142,13 +1130,6 @@ For example,
 
 ```bash
 rake state_machine:draw CLASS=Vehicle
-```
-
-If you are using this library as a gem in Rails 2.x, the following must be added
-to the end of your application's Rakefile in order for the above task to work:
-
-```ruby
-require 'tasks/state_machine'
 ```
 
 ### Merb
