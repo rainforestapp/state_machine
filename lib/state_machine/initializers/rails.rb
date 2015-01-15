@@ -7,7 +7,7 @@ if defined?(Rails)
 
   if defined?(Rails::Engine)
     class StateMachine::RailsEngine < Rails::Engine
-      paths['config/locales'] = locale_paths
     end
+    StateMachine::RailsEngine.paths['config/locales'] = locale_paths
   end
 end
