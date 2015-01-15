@@ -1,4 +1,6 @@
-# state_machine [![Build Status](https://secure.travis-ci.org/pluginaweek/state_machine.png "Build Status")](http://travis-ci.org/pluginaweek/state_machine) [![Dependency Status](https://gemnasium.com/pluginaweek/state_machine.png "Dependency Status")](https://gemnasium.com/pluginaweek/state_machine)
+# spree-state_machine [![Build Status](https://secure.travis-ci.org/spree-contrib/state_machine.png "Build Status")](http://travis-ci.org/spree-contrib/state_machine)
+
+**NOTE: This is the Spree fork of state_machine that includes some fixes required for Rails 4.2. We hope to go back to a canonical release if https://github.com/pluginaweek/state_machine/issues/310 decides on a canonical fork. **
 
 *state_machine* adds support for creating state machines for attributes on any
 Ruby class.
@@ -84,116 +86,116 @@ Class definition:
 ```ruby
 class Vehicle
   attr_accessor :seatbelt_on, :time_used, :auto_shop_busy
-  
+
   state_machine :state, :initial => :parked do
     before_transition :parked => any - :parked, :do => :put_on_seatbelt
-    
+
     after_transition :on => :crash, :do => :tow
     after_transition :on => :repair, :do => :fix
     after_transition any => :parked do |vehicle, transition|
       vehicle.seatbelt_on = false
     end
-    
+
     after_failure :on => :ignite, :do => :log_start_failure
-    
+
     around_transition do |vehicle, transition, block|
       start = Time.now
       block.call
       vehicle.time_used += Time.now - start
     end
-    
+
     event :park do
       transition [:idling, :first_gear] => :parked
     end
-    
+
     event :ignite do
       transition :stalled => same, :parked => :idling
     end
-    
+
     event :idle do
       transition :first_gear => :idling
     end
-    
+
     event :shift_up do
       transition :idling => :first_gear, :first_gear => :second_gear, :second_gear => :third_gear
     end
-    
+
     event :shift_down do
       transition :third_gear => :second_gear, :second_gear => :first_gear
     end
-    
+
     event :crash do
       transition all - [:parked, :stalled] => :stalled, :if => lambda {|vehicle| !vehicle.passed_inspection?}
     end
-    
+
     event :repair do
       # The first transition that matches the state and passes its conditions
       # will be used
       transition :stalled => :parked, :unless => :auto_shop_busy
       transition :stalled => same
     end
-    
+
     state :parked do
       def speed
         0
       end
     end
-    
+
     state :idling, :first_gear do
       def speed
         10
       end
     end
-    
+
     state all - [:parked, :stalled, :idling] do
       def moving?
         true
       end
     end
-    
+
     state :parked, :stalled, :idling do
       def moving?
         false
       end
     end
   end
-  
+
   state_machine :alarm_state, :initial => :active, :namespace => 'alarm' do
     event :enable do
       transition all => :active
     end
-    
+
     event :disable do
       transition all => :off
     end
-    
+
     state :active, :value => 1
     state :off, :value => 0
   end
-  
+
   def initialize
     @seatbelt_on = false
     @time_used = 0
     @auto_shop_busy = true
     super() # NOTE: This *must* be called, otherwise states won't get initialized
   end
-  
+
   def put_on_seatbelt
     @seatbelt_on = true
   end
-  
+
   def passed_inspection?
     false
   end
-  
+
   def tow
     # tow the vehicle
   end
-  
+
   def fix
     # get the vehicle fixed by a mechanic
   end
-  
+
   def log_start_failure
     # log a failed attempt to start the vehicle
   end
@@ -325,30 +327,30 @@ class Vehicle
   include ActiveModel::Dirty
   include ActiveModel::Validations
   include ActiveModel::Observing
-  
+
   attr_accessor :state
   define_attribute_methods [:state]
-  
+
   state_machine :initial => :parked do
     before_transition :parked => any - :parked, :do => :put_on_seatbelt
     after_transition any => :parked do |vehicle, transition|
       vehicle.seatbelt = 'off'
     end
     around_transition :benchmark
-    
+
     event :ignite do
       transition :parked => :idling
     end
-    
+
     state :first_gear, :second_gear do
       validates_presence_of :seatbelt_on
     end
   end
-  
+
   def put_on_seatbelt
     ...
   end
-  
+
   def benchmark
     ...
     yield
@@ -361,12 +363,12 @@ class VehicleObserver < ActiveModel::Observer
   def before_ignite(vehicle, transition)
     # log message
   end
-  
+
   # Generic transition callback *after* the transition is performed
   def after_transition(vehicle, transition)
     Audit.log(vehicle, transition)
   end
-  
+
   # Generic callback after the transition fails to perform
   def after_failure_to_transition(vehicle, transition)
     Audit.error(vehicle, transition)
@@ -391,20 +393,20 @@ class Vehicle < ActiveRecord::Base
       vehicle.seatbelt = 'off'
     end
     around_transition :benchmark
-    
+
     event :ignite do
       transition :parked => :idling
     end
-    
+
     state :first_gear, :second_gear do
       validates_presence_of :seatbelt_on
     end
   end
-  
+
   def put_on_seatbelt
     ...
   end
-  
+
   def benchmark
     ...
     yield
@@ -417,7 +419,7 @@ class VehicleObserver < ActiveRecord::Observer
   def before_ignite(vehicle, transition)
     # log message
   end
-  
+
   # Generic transition callback *after* the transition is performed
   def after_transition(vehicle, transition)
     Audit.log(vehicle, transition)
@@ -437,30 +439,30 @@ callbacks, validation errors, and observers.  For example,
 ```ruby
 class Vehicle
   include DataMapper::Resource
-  
+
   property :id, Serial
   property :state, String
-  
+
   state_machine :initial => :parked do
     before_transition :parked => any - :parked, :do => :put_on_seatbelt
     after_transition any => :parked do |transition|
       self.seatbelt = 'off' # self is the record
     end
     around_transition :benchmark
-    
+
     event :ignite do
       transition :parked => :idling
     end
-    
+
     state :first_gear, :second_gear do
       validates_presence_of :seatbelt_on
     end
   end
-  
+
   def put_on_seatbelt
     ...
   end
-  
+
   def benchmark
     ...
     yield
@@ -470,25 +472,25 @@ end
 
 class VehicleObserver
   include DataMapper::Observer
-  
+
   observe Vehicle
-  
+
   # Callback for :ignite event *before* the transition is performed
   before_transition :on => :ignite do |transition|
     # log message (self is the record)
   end
-  
+
   # Generic transition callback *after* the transition is performed
   after_transition do |transition|
     Audit.log(self, transition) # self is the record
   end
-  
+
   around_transition do |transition, block|
     # mark start time
     block.call
     # mark stop time
   end
-  
+
   # Generic callback after the transition fails to perform
   after_transition_failure do |transition|
     Audit.log(self, transition) # self is the record
@@ -510,27 +512,27 @@ basic scopes, validation errors, and observers.  For example,
 ```ruby
 class Vehicle
   include Mongoid::Document
-  
+
   state_machine :initial => :parked do
     before_transition :parked => any - :parked, :do => :put_on_seatbelt
     after_transition any => :parked do |vehicle, transition|
       vehicle.seatbelt = 'off' # self is the record
     end
     around_transition :benchmark
-    
+
     event :ignite do
       transition :parked => :idling
     end
-    
+
     state :first_gear, :second_gear do
       validates_presence_of :seatbelt_on
     end
   end
-  
+
   def put_on_seatbelt
     ...
   end
-  
+
   def benchmark
     ...
     yield
@@ -543,7 +545,7 @@ class VehicleObserver < Mongoid::Observer
   def before_ignite(vehicle, transition)
     # log message
   end
-  
+
   # Generic transition callback *after* the transition is performed
   def after_transition(vehicle, transition)
     Audit.log(vehicle, transition)
@@ -562,27 +564,27 @@ basic scopes, validation errors and callbacks.  For example,
 ```ruby
 class Vehicle
   include MongoMapper::Document
-  
+
   state_machine :initial => :parked do
     before_transition :parked => any - :parked, :do => :put_on_seatbelt
     after_transition any => :parked do |vehicle, transition|
       vehicle.seatbelt = 'off' # self is the record
     end
     around_transition :benchmark
-    
+
     event :ignite do
       transition :parked => :idling
     end
-    
+
     state :first_gear, :second_gear do
       validates_presence_of :seatbelt_on
     end
   end
-  
+
   def put_on_seatbelt
     ...
   end
-  
+
   def benchmark
     ...
     yield
@@ -603,27 +605,27 @@ errors and callbacks.  For example,
 ```ruby
 class Vehicle < Sequel::Model
   plugin :validation_class_methods
-  
+
   state_machine :initial => :parked do
     before_transition :parked => any - :parked, :do => :put_on_seatbelt
     after_transition any => :parked do |transition|
       self.seatbelt = 'off' # self is the record
     end
     around_transition :benchmark
-    
+
     event :ignite do
       transition :parked => :idling
     end
-    
+
     state :first_gear, :second_gear do
       validates_presence_of :seatbelt_on
     end
   end
-  
+
   def put_on_seatbelt
     ...
   end
-  
+
   def benchmark
     ...
     yield
@@ -700,7 +702,7 @@ class Vehicle
     event 'ignite' do
       transition 'parked' => 'idling'
     end
-    
+
     # ...
   end
 end
@@ -754,7 +756,7 @@ class Vehicle
     event :ignite do
       transition :parked => :idling
     end
-    
+
     states.each do |state|
       self.state(state.name, :value => state.name.to_sym)
     end
@@ -789,7 +791,7 @@ class Vehicle
     after_transition :to => :parked do |transition|
       self.seatbelt = 'off' # self is the record
     end
-    
+
     event :ignite do
       transition :from => :parked, :to => :idling
     end
@@ -809,23 +811,23 @@ easily migrate from a different library, you can do so as shown below:
 class Vehicle
   state_machine :initial => :parked do
     ...
-    
+
     state :parked do
       transition :to => :idling, :on => [:ignite, :shift_up], :if => :seatbelt_on?
-      
+
       def speed
         0
       end
     end
-    
+
     state :first_gear do
       transition :to => :second_gear, :on => :shift_up
-      
+
       def speed
         10
       end
     end
-    
+
     state :idling, :first_gear do
       transition :to => :parked, :on => :park
     end
@@ -845,7 +847,7 @@ example below:
 class Vehicle
   state_machine :initial => :parked do
     ...
-    
+
     transition :parked => :idling, :on => [:ignite, :shift_up]
     transition :first_gear => :second_gear, :second_gear => :third_gear, :on => :shift_up
     transition [:idling, :first_gear] => :parked, :on => :park
@@ -876,7 +878,7 @@ class Vehicle
     event :park do
       transition [:idling, :first_gear] => :parked
     end
-    
+
     ...
   end
 end
@@ -893,13 +895,13 @@ state machines like so:
 ```ruby
 class Vehicle
   attr_accessor :state
-  
+
   # Make sure the machine gets initialized so the initial state gets set properly
   def initialize(*)
     super
     machine
   end
-  
+
   # Replace this with an external source (like a db)
   def transitions
     [
@@ -908,7 +910,7 @@ class Vehicle
       # ...
     ]
   end
-  
+
   # Create a state machine for this vehicle instance dynamically based on the
   # transitions defined from the source above
   def machine
@@ -917,7 +919,7 @@ class Vehicle
       vehicle.transitions.each {|attrs| transition(attrs)}
     end
   end
-  
+
   def save
     # Save the state change...
     true
@@ -931,7 +933,7 @@ class Machine
     machine = machine_class.state_machine(*args, &block)
     attribute = machine.attribute
     action = machine.action
-    
+
     # Delegate attributes
     machine_class.class_eval do
       define_method(:definition) { machine }
@@ -939,7 +941,7 @@ class Machine
       define_method("#{attribute}=") {|value| object.send("#{attribute}=", value) }
       define_method(action) { object.send(action) } if action
     end
-    
+
     machine_class.new
   end
 end
@@ -974,7 +976,7 @@ require 'state_machine/core'
 
 class Vehicle
   extend StateMachine::MacroMethods
-  
+
   state_machine do
     # ...
   end
