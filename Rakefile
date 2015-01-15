@@ -1,6 +1,5 @@
-require 'rubygems'
 require 'bundler'
-Bundler.setup
+Bundler::GemHelper.install_tasks
 
 require 'rake'
 require 'rake/testtask'
@@ -19,21 +18,3 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
   t.warning = true if ENV['WARNINGS']
 end
-
-namespace :appraisal do
-  desc "Run the given task for a particular integration's appraisals"
-  task :integration do
-    integration = ENV['INTEGRATION']
-
-    Appraisal::File.each do |appraisal|
-      if appraisal.name.include?(integration)
-        appraisal.install
-        Appraisal::Command.from_args(appraisal.gemfile_path).run
-      end
-    end
-
-    exit
-  end
-end
-
-# load File.dirname(__FILE__) + '/lib/tasks/state_machine.rake'
