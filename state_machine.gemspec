@@ -2,7 +2,7 @@ $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 require 'state_machine/version'
 
 Gem::Specification.new do |s|
-  s.name              = "spree-state_machine"
+  s.name              = "state_machine"
   s.version           = StateMachine::VERSION
   s.authors           = ["Aaron Pfeifer"]
   s.email             = "aaron@pluginaweek.org"
